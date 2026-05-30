@@ -1,10 +1,9 @@
-import type { TipoSolicitacao, Solicitacao, Sessao } from '@/types'
+import type { TipoSolicitacao, Solicitacao, Sessao, Emprestimo } from '@/types'
 
 export interface DisponibilidadeResult {
   disponivel: boolean
   motivos: string[]  // lista de bloqueios; vazio se disponível
   capacidadeOk: boolean
-  cooldownOk: boolean
   agendaOk: boolean
 }
 
@@ -32,4 +31,7 @@ export interface IBibliotecaService {
 
   // FUTURO BACKEND: GET /api/biblioteca/sessao-atual  → 200 { sessao } | 404
   getSessaoAtual(): Promise<Sessao | null>
+
+  // BACKEND: GET /api/loans/my → empréstimo ativo do aluno (returnedAt null) | null
+  getEmprestimoAtivo(): Promise<Emprestimo | null>
 }

@@ -9,24 +9,24 @@ export interface CriarLivroDados {
 }
 
 export interface IAcervoService {
-  // FUTURO BACKEND: GET /api/acervo/livros  → 200 { livros[] }
+  // BACKEND: GET /api/books  (auth) → 200 { data: BookDTO[] }
   listarLivros(): Promise<Livro[]>
 
-  // FUTURO BACKEND: GET /api/acervo/livros/:id  → 200 { livro } | 404
+  // BACKEND: GET /api/books/:id  (auth) → 200 { data: BookDTO } | 404
   getLivro(id: string): Promise<Livro | null>
 
-  // FUTURO BACKEND: POST /api/acervo/livros  body: CriarLivroBody → 201 { livro }
+  // BACKEND: POST /api/books  (admin) body: { title, author, rfidTag, location, isbn? } → 201 { data: BookDTO }
   criarLivro(dados: CriarLivroDados): Promise<Livro>
 
-  // FUTURO BACKEND: PATCH /api/acervo/livros/:id  body: AtualizarLivroBody → 200 { livro }
+  // BACKEND: PATCH /api/books/:id  (admin) body: Partial<…> → 200 { data: BookDTO }
   atualizarLivro(id: string, dados: Partial<CriarLivroDados>): Promise<Livro>
 
-  // FUTURO BACKEND: DELETE /api/acervo/livros/:id  → 204
+  // BACKEND: DELETE /api/books/:id  (admin) → 200
   removerLivro(id: string): Promise<void>
 
-  // FUTURO BACKEND: GET /api/acervo/livros?disponivel=true  → 200 { livros[] }
+  // BACKEND: sem filtro server-side — GET /api/books filtrado no cliente
   listarLivrosDisponiveis(): Promise<Livro[]>
 
-  // FUTURO BACKEND: GET /api/acervo/livros?rfid=<tag>  → 200 { livro } | 404
+  // BACKEND: GET /api/books/rfid/:tag  (auth) → 200 { data: BookDTO } | 404
   getLivroPorRfid(tagRfid: string): Promise<Livro | null>
 }

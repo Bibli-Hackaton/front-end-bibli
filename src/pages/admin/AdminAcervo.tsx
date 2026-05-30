@@ -67,8 +67,8 @@ export function AdminAcervo() {
       }
       setDialogAberto(false)
       await carregar()
-    } catch {
-      toast.error('Erro ao salvar livro')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao salvar livro')
     } finally {
       setSalvando(false)
     }
@@ -80,8 +80,8 @@ export function AdminAcervo() {
       setConfirmarRemover(null)
       await carregar()
       toast.success(`"${livro.titulo}" removido do acervo`)
-    } catch {
-      toast.error('Erro ao remover livro')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao remover livro')
     }
   }
 

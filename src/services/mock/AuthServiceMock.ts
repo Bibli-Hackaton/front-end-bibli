@@ -3,11 +3,14 @@ import type { IAuthService } from '../AuthService'
 import type { Usuario, Papel } from '@/types'
 
 export class AuthServiceMock implements IAuthService {
-  async login(usuarioId: string): Promise<Usuario> {
+  // O fluxo real usa email/senha contra o backend. Este mock só existe para
+  // compilar com VITE_API_BASE_URL ausente; casa por email (campo opcional do
+  // seed) ou ignora a senha.
+  async login(email: string, _password: string): Promise<Usuario> {
     const store = useBibliotecaStore.getState()
-    const usuario = store.usuarios.find((u) => u.id === usuarioId)
-    if (!usuario) throw new Error('Usuário não encontrado')
-    store.setUsuarioLogado(usuarioId)
+    const usuario = store.usuarios.find((u) => u.email === email)
+    if (!usuario) throw new Error('Credenciais inválidas')
+    store.setUsuarioLogado(usuario.id)
     return usuario
   }
 

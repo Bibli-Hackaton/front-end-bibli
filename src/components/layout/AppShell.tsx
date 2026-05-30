@@ -57,7 +57,7 @@ export function AppShell() {
               <BookOpen className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-[var(--foreground)] text-sm hidden sm:block">
-              Biblioteca Autônoma
+              Bibli
             </span>
           </Link>
 

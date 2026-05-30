@@ -136,16 +136,16 @@ export function AdminInventario() {
             {emprestimos
               .filter((e) => e.dataDevolucao === null)
               .map((emp) => {
-                const aluno = store.usuarios.find((u) => u.id === emp.alunoId)
-                const livro = store.livros.find((l) => l.id === emp.livroId)
+                const alunoNome = emp.alunoNome ?? store.usuarios.find((u) => u.id === emp.alunoId)?.nome
+                const livroTitulo = emp.livroTitulo ?? store.livros.find((l) => l.id === emp.livroId)?.titulo
                 const atrasado = new Date(emp.dataPrevista) < new Date()
                 return (
                   <Card key={emp.id} className={atrasado ? 'border-[#9b1b22]' : ''}>
                     <CardContent className="py-4 px-5">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex flex-col gap-1">
-                          <p className="font-semibold text-sm">{livro?.titulo ?? 'Livro não encontrado'}</p>
-                          <p className="body-sm text-[var(--muted-foreground)]">{aluno?.nome}</p>
+                          <p className="font-semibold text-sm">{livroTitulo ?? 'Livro não encontrado'}</p>
+                          <p className="body-sm text-[var(--muted-foreground)]">{alunoNome}</p>
                           <p className="label-md text-[var(--muted-foreground)]">
                             Emprestado: {formatDate(emp.dataEmprestimo)} •
                             Devolução: {formatDate(emp.dataPrevista)}

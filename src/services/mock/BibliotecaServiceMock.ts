@@ -1,7 +1,7 @@
 import { useBibliotecaStore } from '@/store/bibliotecaStore'
 import { generateId, addMinutes } from '@/lib/utils'
 import type { IBibliotecaService, DisponibilidadeResult } from '../BibliotecaService'
-import type { TipoSolicitacao, Solicitacao, Sessao } from '@/types'
+import type { TipoSolicitacao, Solicitacao, Sessao, Emprestimo } from '@/types'
 
 export class BibliotecaServiceMock implements IBibliotecaService {
   async verificarDisponibilidade(): Promise<DisponibilidadeResult> {
@@ -21,14 +21,6 @@ export class BibliotecaServiceMock implements IBibliotecaService {
       motivos.push(`Sala ocupada (capacidade máx: ${config.capacidadeSala} pessoa)`)
     }
 
-    // RN4 — Cooldown
-    const usuario = store.usuarios.find((u) => u.id === usuarioLogadoId)
-    const cooldownOk = !usuario?.cooldownAte || new Date(usuario.cooldownAte) <= new Date()
-    if (!cooldownOk && usuario?.cooldownAte) {
-      const min = Math.ceil((new Date(usuario.cooldownAte).getTime() - Date.now()) / 60000)
-      motivos.push(`Cooldown ativo: aguarde ${min} min antes de solicitar novamente`)
-    }
-
     // RN5 — Sem conflito de agenda: verificar reservas nas próximas 2 horas
     const agora = new Date()
     const limite = addMinutes(agora, config.tempoMaxSessaoMin)
@@ -44,7 +36,7 @@ export class BibliotecaServiceMock implements IBibliotecaService {
       motivos.push('Há um agendamento reservado no período solicitado')
     }
 
-    return { disponivel: motivos.length === 0, motivos, capacidadeOk, cooldownOk, agendaOk }
+    return { disponivel: motivos.length === 0, motivos, capacidadeOk, agendaOk }
   }
 
   async solicitarAcesso(tipo: TipoSolicitacao, tempoMin: number, dataAgendada?: string): Promise<Solicitacao> {
@@ -170,16 +162,6 @@ export class BibliotecaServiceMock implements IBibliotecaService {
     store.updateSessao(sessaoId, { status: 'encerrada' })
     store.setSessaoAtiva(null)
 
-    // Aplicar cooldown ao aluno (RN4)
-    const config = store.config
-    const usuario = store.usuarios.find((u) => u.id === sessao.alunoId)
-    if (usuario) {
-      store.upsertUsuario({
-        ...usuario,
-        cooldownAte: addMinutes(new Date(), config.cooldownMin).toISOString(),
-      })
-    }
-
     return { ...sessao, status: 'encerrada' }
   }
 
@@ -193,6 +175,15 @@ export class BibliotecaServiceMock implements IBibliotecaService {
           s.alunoId === usuarioLogadoId &&
           (s.status === 'ativa' || s.status === 'aguardando_saida')
       ) ?? null
+    )
+  }
+
+  async getEmprestimoAtivo(): Promise<Emprestimo | null> {
+    const store = useBibliotecaStore.getState()
+    const { usuarioLogadoId } = store.ui
+    if (!usuarioLogadoId) return null
+    return (
+      store.emprestimos.find((e) => e.alunoId === usuarioLogadoId && e.dataDevolucao === null) ?? null
     )
   }
 }

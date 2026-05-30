@@ -67,7 +67,7 @@ export function DigitalIdCard({ usuario, compact = false, className }: DigitalId
       </div>
 
       <div className="px-5 pb-4 border-t border-[var(--border)] pt-3">
-        <p className="label-md text-[var(--muted-foreground)]">BIBLIOTECA UNIVERSITÁRIA • SISTEMA AUTÔNOMO</p>
+        <p className="label-md text-[var(--muted-foreground)]">BIBLI • SISTEMA AUTÔNOMO</p>
       </div>
     </div>
   )

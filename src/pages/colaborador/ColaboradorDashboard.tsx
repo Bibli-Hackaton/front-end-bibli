@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { CheckCircle2, XCircle, Clock, AlertTriangle, Loader2, Users, BookOpen } from 'lucide-react'
 import { bibliotecaService, solicitacaoService } from '@/services'
 import { useBibliotecaStore } from '@/store/bibliotecaStore'
+import { usePolling } from '@/hooks/usePolling'
 import { Tranca } from '@/mocks/hardware/Tranca'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -26,21 +27,26 @@ export function ColaboradorDashboard() {
     ? store.livros.find((l) => l.id === sessaoAtiva.livroVinculadoId)
     : null
 
-  // Recarregar quando o store mudar (reatividade em tempo real)
-  useEffect(() => {
-    async function carregar() {
-      const [p, r] = await Promise.all([
-        solicitacaoService.listarPendentes(),
-        solicitacaoService.listarReservas(),
-      ])
-      setPendentes(p)
-      setReservas(r)
-    }
-    carregar()
-    // Subscreve mudanças no store (Zustand)
-    const unsubscribe = useBibliotecaStore.subscribe(carregar)
-    return unsubscribe
+  // Busca as filas (estado React local). Não escreve no store → seguro para
+  // ser disparado pelo subscribe sem criar loop.
+  const carregarListas = useCallback(async () => {
+    const [p, r] = await Promise.all([
+      solicitacaoService.listarPendentes(),
+      solicitacaoService.listarReservas(),
+    ])
+    setPendentes(p)
+    setReservas(r)
   }, [])
+
+  // Mock: reage a mudanças no store instantaneamente (BroadcastChannel).
+  useEffect(() => useBibliotecaStore.subscribe(carregarListas), [carregarListas])
+
+  // Backend: polling traz filas + sessão ativa (aluno está em outro navegador).
+  const sincronizar = useCallback(async () => {
+    await carregarListas()
+    await bibliotecaService.getSessaoAtual() // popula store.sessoes
+  }, [carregarListas])
+  usePolling(sincronizar, 4000)
 
   async function confirmarEntrada(solicitacaoId: string) {
     setLoadingId(solicitacaoId)

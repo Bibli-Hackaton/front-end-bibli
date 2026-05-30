@@ -5,7 +5,59 @@ export interface UsuarioDTO {
   id: string
   nome: string
   papel: 'aluno' | 'colaborador' | 'admin'
-  cooldown_ate: string | null
+}
+
+// ─── Auth (backend NestJS real — camelCase, dentro de { data }) ──────────────
+
+export interface AuthUserDTO {
+  id: string
+  name: string
+  email: string
+  role: 'aluno' | 'colaborador' | 'admin'
+  createdAt: string
+}
+
+export interface LoginResponseDTO {
+  accessToken: string
+  user: AuthUserDTO
+}
+
+// ─── Requests / Sessions / Loans (backend real, camelCase) ───────────────────
+
+export interface AccessRequestDTO {
+  id: string
+  userId: string
+  type: 'now' | 'scheduled' | 'return'
+  estimatedMinutes: number
+  scheduledAt: string | null
+  status: 'pending' | 'reserved' | 'approved' | 'denied' | 'expired'
+  denialReason: string | null
+  createdAt: string
+  user?: AuthUserDTO // presente nas listagens (relation), pode vir com campos extras
+}
+
+export interface SessionDTO {
+  id: string
+  userId: string
+  requestId: string
+  startedAt: string
+  estimatedMinutes: number
+  status: 'active' | 'awaiting_exit' | 'closed'
+  linkedBookId: string | null
+  closedAt: string | null
+}
+
+export interface LoanDTO {
+  id: string
+  userId: string
+  bookId: string
+  sessionId: string
+  loanedAt: string
+  dueDate: string
+  returnedAt: string | null
+  daysRequested: number
+  user?: AuthUserDTO // presente nas listagens (relation)
+  book?: BookDTO // presente nas listagens (relation)
 }
 
 export interface LivroDTO {
@@ -16,6 +68,18 @@ export interface LivroDTO {
   disponivel: boolean
   localizacao: string
   isbn?: string
+}
+
+// Livro como retornado pelo backend real (camelCase, entity TypeORM 'books').
+export interface BookDTO {
+  id: string
+  title: string
+  author: string
+  isbn: string | null
+  rfidTag: string
+  location: string
+  isAvailable: boolean
+  createdAt: string
 }
 
 export interface EmprestimoDTO {
@@ -61,9 +125,18 @@ export interface AlertaDTO {
 
 export interface ConfigDTO {
   tempo_max_sessao_min: number
-  cooldown_min: number
   dias_padrao_emprestimo: number
   capacidade_sala: number
+}
+
+// Config como retornada pelo backend real (camelCase, entity 'library_config').
+export interface LibraryConfigDTO {
+  id: string
+  maxSessionMinutes: number
+  maxLoanDays: number
+  roomCapacity: number
+  updatedAt: string
+  updatedBy: string | null
 }
 
 // ─── Request bodies (para comentários de endpoint) ──────────────────────────
@@ -85,7 +158,6 @@ export interface PegarLivroBody {
 
 export interface SalvarConfigBody {
   tempo_max_sessao_min?: number
-  cooldown_min?: number
   dias_padrao_emprestimo?: number
   capacidade_sala?: number
 }

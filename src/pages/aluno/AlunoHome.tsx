@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  BookOpen, Clock, CalendarClock, RefreshCw,
+  BookOpen, CalendarClock, RefreshCw,
   CheckCircle2, XCircle, Loader2, AlertTriangle,
 } from 'lucide-react'
-import { bibliotecaService } from '@/services'
+import { bibliotecaService, adminService } from '@/services'
 import { useBibliotecaStore } from '@/store/bibliotecaStore'
+import { usePolling } from '@/hooks/usePolling'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -13,7 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { StatusChip } from '@/components/shared/StatusChip'
 import { toast } from 'sonner'
-import { formatDateTime, minutesUntil } from '@/lib/utils'
+import { formatDateTime } from '@/lib/utils'
 import type { TipoSolicitacao, Solicitacao } from '@/types'
 import type { DisponibilidadeResult } from '@/services/BibliotecaService'
 
@@ -40,6 +41,17 @@ export function AlunoHome() {
     if (sessaoAtiva) navigate('/aluno/sessao')
   }, [sessaoAtiva, navigate])
 
+  // Carrega a config real (regras) e o empréstimo ativo do aluno ao montar.
+  useEffect(() => {
+    adminService.getConfig().then((c) => useBibliotecaStore.getState().setConfig(c)).catch(() => {})
+    bibliotecaService.getEmprestimoAtivo().catch(() => {})
+  }, [])
+
+  // Backend: detecta a aprovação do colaborador (outro navegador) → redireciona.
+  usePolling(() => {
+    void bibliotecaService.getSessaoAtual()
+  }, 4000)
+
   const [etapa, setEtapa] = useState<Etapa>('escolher_tipo')
   const [tipoSelecionado, setTipoSelecionado] = useState<TipoSolicitacao | null>(null)
   const [tempoMin, setTempoMin] = useState<number>(60)
@@ -49,7 +61,6 @@ export function AlunoHome() {
   const [loading, setLoading] = useState(false)
 
   const config = store.config
-  const cooldownRestante = usuario.cooldownAte ? minutesUntil(usuario.cooldownAte) : 0
 
   // Solicitações recentes deste aluno
   const solicitacoesRecentes = store.solicitacoes
@@ -83,7 +94,7 @@ export function AlunoHome() {
       } else {
         // Agendada: não checa disponibilidade imediata, vai direto
         setEtapa('disponivel')
-        setDisponibilidade({ disponivel: true, motivos: [], capacidadeOk: true, cooldownOk: true, agendaOk: true })
+        setDisponibilidade({ disponivel: true, motivos: [], capacidadeOk: true, agendaOk: true })
       }
     } catch {
       toast.error('Erro ao verificar disponibilidade')
@@ -144,17 +155,6 @@ export function AlunoHome() {
         </Alert>
       )}
 
-      {/* Banner cooldown */}
-      {cooldownRestante > 0 && (
-        <Alert variant="warning" className="mb-6">
-          <Clock className="w-4 h-4" />
-          <AlertTitle>Cooldown ativo</AlertTitle>
-          <AlertDescription>
-            Aguarde mais <strong>{cooldownRestante} min</strong> para solicitar novo acesso.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {/* Etapa: escolher tipo */}
       {etapa === 'escolher_tipo' && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -163,11 +163,8 @@ export function AlunoHome() {
             descricao="Entrar na biblioteca imediatamente"
             icone={<BookOpen className="w-6 h-6" />}
             onClick={() => selecionarTipo('agora')}
-            bloqueado={!!emprestimoAberto || cooldownRestante > 0}
-            motivoBloqueio={
-              emprestimoAberto ? 'Tem livro pendente' :
-              cooldownRestante > 0 ? `Cooldown: ${cooldownRestante} min` : undefined
-            }
+            bloqueado={!!emprestimoAberto}
+            motivoBloqueio={emprestimoAberto ? 'Tem livro pendente' : undefined}
           />
           <TipoCard
             titulo="Agendar acesso"

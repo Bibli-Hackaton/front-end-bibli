@@ -6,8 +6,8 @@ export interface Usuario {
   id: string
   nome: string
   papel: Papel
-  cooldownAte: string | null  // ISO: quando o cooldown expira (null = sem cooldown)
   avatarInicial: string       // ex.: 'AS' para Ana Silva
+  email?: string              // presente quando vindo do backend real
 }
 
 export interface Livro {
@@ -28,6 +28,10 @@ export interface Emprestimo {
   diasParaDevolver: number
   dataPrevista: string         // ISO (dataEmprestimo + dias)
   dataDevolucao: string | null // ISO quando devolvido; null = aberto
+  // Preenchidos pelas listagens do backend (relations user/book). No modo mock
+  // ficam undefined e a UI resolve nome/título pelo store.
+  alunoNome?: string
+  livroTitulo?: string
 }
 
 export type TipoSolicitacao = 'agora' | 'agendada' | 'devolucao'
@@ -56,7 +60,7 @@ export interface Sessao {
   livroVinculadoId: string | null  // null se só leu na sala
 }
 
-export type TipoAlerta = 'webcam_falhou' | 'sessao_encerrada_sem_registro' | 'tempo_excedido' | 'cooldown_violado'
+export type TipoAlerta = 'webcam_falhou' | 'sessao_encerrada_sem_registro' | 'tempo_excedido'
 
 export interface Alerta {
   id: string
@@ -70,7 +74,6 @@ export interface Alerta {
 
 export interface Config {
   tempoMaxSessaoMin: number
-  cooldownMin: number
   diasPadraoEmprestimo: number
   capacidadeSala: number       // default: 1
 }

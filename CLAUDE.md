@@ -65,7 +65,7 @@ Routes:
 | u4 | Diego Ferreira | colaborador | |
 | u5 | Elisa Rocha | admin | |
 
-Config defaults: `capacidadeSala: 1`, `cooldownMin: 30`, `tempoMaxSessaoMin: 120`, `diasPadraoEmprestimo: 14`.
+Config defaults: `capacidadeSala: 1`, `tempoMaxSessaoMin: 120`, `diasPadraoEmprestimo: 14`.
 
 ## Business rules
 
@@ -73,7 +73,6 @@ Enforced in `BibliotecaServiceMock.ts`:
 
 - **RN1** — one book at a time per student (`pegarLivro`)
 - **RN2** — room capacity check (`verificarDisponibilidade`)
-- **RN4** — cooldown enforced via `usuario.cooldownAte` ISO field (`verificarDisponibilidade`)
 - **RN5** — no conflicting scheduled reservations
 - **RN6** — student with open loan can only request type `'devolucao'`; `'agora'`/`'agendada'` are blocked
 - **RN7** — two-moment model: `solicitarAcesso()` (student, creates `pendente`) is separate from `confirmarEntrada()` (collaborator only, creates `Sessao`)

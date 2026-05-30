@@ -45,3 +45,12 @@ export function minutesSince(iso: string): number {
 export function generateId(prefix = 'id'): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
 }
+
+// Deriva as iniciais de um nome (ex.: 'Ana Silva' → 'AS'). O backend não
+// envia avatarInicial, então derivamos do nome no mapeamento DTO → domínio.
+export function iniciaisDoNome(nome: string): string {
+  const partes = nome.trim().split(/\s+/).filter(Boolean)
+  if (partes.length === 0) return '?'
+  if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase()
+  return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase()
+}

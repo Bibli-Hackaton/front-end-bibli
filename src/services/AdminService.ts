@@ -9,10 +9,10 @@ export interface InventarioStats {
 }
 
 export interface IAdminService {
-  // FUTURO BACKEND: GET /api/admin/config  → 200 { config }
+  // BACKEND: GET /api/config  (auth) → 200 { data: LibraryConfigDTO }
   getConfig(): Promise<Config>
 
-  // FUTURO BACKEND: PATCH /api/admin/config  body: SalvarConfigBody → 200 { config }
+  // BACKEND: PATCH /api/config  (admin) body: { maxSessionMinutes?, maxLoanDays?, roomCapacity? } → 200 { data: LibraryConfigDTO }
   salvarConfig(dados: Partial<Config>): Promise<Config>
 
   // FUTURO BACKEND: GET /api/admin/inventario  → 200 { stats }

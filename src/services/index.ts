@@ -1,6 +1,8 @@
 // Ponto único de acesso à camada de serviço.
-// Para conectar o backend real: implementar as interfaces com fetch/axios
-// e virar a flag VITE_USE_MOCK para false.
+// Quando VITE_API_BASE_URL está definido, todos os serviços usam o backend
+// real (HTTP); caso contrário, usam os mocks em memória (demo).
+// Nota: AdminServiceHTTP delega ao mock os métodos sem endpoint (inventário/
+// alertas/empréstimos) até que existam no backend.
 
 import type { IAuthService } from './AuthService'
 import type { IBibliotecaService } from './BibliotecaService'
@@ -14,24 +16,30 @@ import { AcervoServiceMock } from './mock/AcervoServiceMock'
 import { SolicitacaoServiceMock } from './mock/SolicitacaoServiceMock'
 import { AdminServiceMock } from './mock/AdminServiceMock'
 
-const useMock = import.meta.env.VITE_USE_MOCK !== 'false'
+import { AuthServiceHTTP } from './http/AuthServiceHTTP'
+import { AcervoServiceHTTP } from './http/AcervoServiceHTTP'
+import { AdminServiceHTTP } from './http/AdminServiceHTTP'
+import { BibliotecaServiceHTTP } from './http/BibliotecaServiceHTTP'
+import { SolicitacaoServiceHTTP } from './http/SolicitacaoServiceHTTP'
 
-export const authService: IAuthService = useMock
-  ? new AuthServiceMock()
-  : (() => { throw new Error('HTTP AuthService não implementado') })()
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
-export const bibliotecaService: IBibliotecaService = useMock
-  ? new BibliotecaServiceMock()
-  : (() => { throw new Error('HTTP BibliotecaService não implementado') })()
+export const authService: IAuthService = apiBaseUrl
+  ? new AuthServiceHTTP()
+  : new AuthServiceMock()
 
-export const acervoService: IAcervoService = useMock
-  ? new AcervoServiceMock()
-  : (() => { throw new Error('HTTP AcervoService não implementado') })()
+export const bibliotecaService: IBibliotecaService = apiBaseUrl
+  ? new BibliotecaServiceHTTP()
+  : new BibliotecaServiceMock()
 
-export const solicitacaoService: ISolicitacaoService = useMock
-  ? new SolicitacaoServiceMock()
-  : (() => { throw new Error('HTTP SolicitacaoService não implementado') })()
+export const acervoService: IAcervoService = apiBaseUrl
+  ? new AcervoServiceHTTP()
+  : new AcervoServiceMock()
 
-export const adminService: IAdminService = useMock
-  ? new AdminServiceMock()
-  : (() => { throw new Error('HTTP AdminService não implementado') })()
+export const solicitacaoService: ISolicitacaoService = apiBaseUrl
+  ? new SolicitacaoServiceHTTP()
+  : new SolicitacaoServiceMock()
+
+export const adminService: IAdminService = apiBaseUrl
+  ? new AdminServiceHTTP()
+  : new AdminServiceMock()

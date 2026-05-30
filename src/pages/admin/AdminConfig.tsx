@@ -28,8 +28,8 @@ export function AdminConfig() {
       const atualizado = await adminService.salvarConfig(config)
       setConfig(atualizado)
       toast.success('Configurações salvas!')
-    } catch {
-      toast.error('Erro ao salvar configurações')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao salvar configurações')
     } finally {
       setSalvando(false)
     }
@@ -73,21 +73,6 @@ export function AdminConfig() {
             />
             <p className="body-sm text-[var(--muted-foreground)]">
               Teto de tempo que um aluno pode estimar ao solicitar acesso (RN3)
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="cooldown">Cooldown após saída (minutos)</Label>
-            <Input
-              id="cooldown"
-              type="number"
-              min={0}
-              max={240}
-              value={config.cooldownMin}
-              onChange={(e) => setConfig({ ...config, cooldownMin: Number(e.target.value) })}
-            />
-            <p className="body-sm text-[var(--muted-foreground)]">
-              Tempo que o aluno deve aguardar antes de solicitar novo acesso após sair (RN4)
             </p>
           </div>
 

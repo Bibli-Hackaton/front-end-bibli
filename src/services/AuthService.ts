@@ -1,8 +1,8 @@
 import type { Usuario, Papel } from '@/types'
 
 export interface IAuthService {
-  // FUTURO BACKEND: POST /api/auth/login  body: { papel, usuarioId } → 200 { usuario, token }
-  login(usuarioId: string): Promise<Usuario>
+  // BACKEND: POST /api/auth/login  body: { email, password } → 200 { data: { accessToken, user } }
+  login(email: string, password: string): Promise<Usuario>
 
   // FUTURO BACKEND: POST /api/auth/logout  → 204
   logout(): Promise<void>

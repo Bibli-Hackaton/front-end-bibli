@@ -14,11 +14,11 @@ import type {
 // ─── Seed de dados mock ──────────────────────────────────────────────────────
 
 const USUARIOS_SEED: Usuario[] = [
-  { id: 'u1', nome: 'Ana Silva', papel: 'aluno', cooldownAte: null, avatarInicial: 'AS' },
-  { id: 'u2', nome: 'Bruno Costa', papel: 'aluno', cooldownAte: null, avatarInicial: 'BC' },
-  { id: 'u3', nome: 'Carla Mendes', papel: 'aluno', cooldownAte: null, avatarInicial: 'CM' },
-  { id: 'u4', nome: 'Diego Ferreira', papel: 'colaborador', cooldownAte: null, avatarInicial: 'DF' },
-  { id: 'u5', nome: 'Elisa Rocha', papel: 'admin', cooldownAte: null, avatarInicial: 'ER' },
+  { id: 'u1', nome: 'Ana Silva', papel: 'aluno', avatarInicial: 'AS' },
+  { id: 'u2', nome: 'Bruno Costa', papel: 'aluno', avatarInicial: 'BC' },
+  { id: 'u3', nome: 'Carla Mendes', papel: 'aluno', avatarInicial: 'CM' },
+  { id: 'u4', nome: 'Diego Ferreira', papel: 'colaborador', avatarInicial: 'DF' },
+  { id: 'u5', nome: 'Elisa Rocha', papel: 'admin', avatarInicial: 'ER' },
 ]
 
 const LIVROS_SEED: Livro[] = [
@@ -44,7 +44,6 @@ const EMPRESTIMOS_SEED: Emprestimo[] = [
 
 const CONFIG_DEFAULT: Config = {
   tempoMaxSessaoMin: 120,
-  cooldownMin: 30,
   diasPadraoEmprestimo: 14,
   capacidadeSala: 1,
 }
@@ -89,10 +88,14 @@ export interface BibliotecaState {
   reset: () => void
 }
 
+// Em modo backend (VITE_API_BASE_URL definido) o domínio começa VAZIO —
+// dados reais vêm dos serviços HTTP. Sem backend, usa os seeds da demo.
+const MODO_BACKEND = !!import.meta.env.VITE_API_BASE_URL
+
 const initialState = () => ({
-  usuarios: USUARIOS_SEED,
-  livros: LIVROS_SEED,
-  emprestimos: EMPRESTIMOS_SEED,
+  usuarios: MODO_BACKEND ? [] : USUARIOS_SEED,
+  livros: MODO_BACKEND ? [] : LIVROS_SEED,
+  emprestimos: MODO_BACKEND ? [] : EMPRESTIMOS_SEED,
   solicitacoes: [] as Solicitacao[],
   sessoes: [] as Sessao[],
   alertas: [] as Alerta[],

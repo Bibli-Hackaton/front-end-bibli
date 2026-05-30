@@ -4,8 +4,9 @@ import {
   Wifi, BookOpen, CheckCircle2, XCircle, Loader2,
   LogOut, Camera, AlertTriangle,
 } from 'lucide-react'
-import { bibliotecaService } from '@/services'
+import { bibliotecaService, acervoService, adminService } from '@/services'
 import { useBibliotecaStore } from '@/store/bibliotecaStore'
+import { usePolling } from '@/hooks/usePolling'
 import { LeitorRFID, useLeitorRFIDStore } from '@/mocks/hardware/LeitorRFID'
 import { Tranca } from '@/mocks/hardware/Tranca'
 import { Webcam, useWebcamStore } from '@/mocks/hardware/Webcam'
@@ -54,6 +55,18 @@ export function TotemSessao() {
     if (sessaoAtual) setSessao(sessaoAtual)
   }, [sessaoAtual, fase, navigate])
 
+  // Carrega acervo real (simulador RFID + lookup de tag), config e empréstimo ativo.
+  useEffect(() => {
+    acervoService.listarLivros().then((l) => useBibliotecaStore.getState().setLivros(l)).catch(() => {})
+    adminService.getConfig().then((c) => useBibliotecaStore.getState().setConfig(c)).catch(() => {})
+    bibliotecaService.getEmprestimoAtivo().catch(() => {})
+  }, [])
+
+  // Backend: detecta confirmação de saída do colaborador → sessão encerra → home.
+  usePolling(() => {
+    void bibliotecaService.getSessaoAtual()
+  }, 4000)
+
   // Determina se é sessão de devolução
   const solicitacao = sessao ? store.solicitacoes.find((s) => s.id === sessao.solicitacaoId) : null
   const isDevolucao = solicitacao?.tipo === 'devolucao'
@@ -66,13 +79,6 @@ export function TotemSessao() {
     : null
 
   const livrosDisponiveis = store.livros.filter((l) => l.disponivel)
-
-  // Ao entrar na sessão de devolução, vai direto para fase de devolver
-  useEffect(() => {
-    if (isDevolucao && fase === 'boas_vindas' && sessao?.status === 'ativa') {
-      setFase('devolvendo')
-    }
-  }, [isDevolucao, fase, sessao])
 
   async function iniciarBip() {
     setFase('lendo')
@@ -155,6 +161,15 @@ export function TotemSessao() {
       setFase('boas_vindas')
     }
   }
+
+  // Ao entrar na sessão de devolução, inicia direto a leitura RFID do livro a devolver.
+  // (apenas setFase('devolvendo') deixava a tela travada: o leitor nunca era acionado,
+  //  então o card de RFID — que exige rfidEstado === 'aguardando' — nunca aparecia)
+  useEffect(() => {
+    if (isDevolucao && fase === 'boas_vindas' && sessao?.status === 'ativa') {
+      void iniciarDevolucao()
+    }
+  }, [isDevolucao, fase, sessao])
 
   async function pedirSaida() {
     if (!sessao) return
