@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #f8f9fb;
+    --foreground: #191c1e;
+    --card: #ffffff;
+    --card-foreground: #191c1e;
+    --popover: #ffffff;
+    --popover-foreground: #191c1e;
+    --primary: #9b1b22;
+    --primary-foreground: #ffffff;
+    --secondary: #f3f4f6;
+    --secondary-foreground: #1f2937;
+    --muted: #f3f4f6;
+    --muted-foreground: #6b7280;
+    --accent: #f3f4f6;
+    --accent-foreground: #1f2937;
+    --destructive: #ba1a1a;
+    --destructive-foreground: #ffffff;
+    --border: #e1e2e4;
+    --input: #d1d5db;
+    --ring: #9b1b22;
+    --radius: 0.25rem;
+
+    /* Extended palette */
+    --primary-hover: #780010;
+    --primary-press: #5a0f14;
+    --status-success-bg: rgba(22, 163, 74, 0.1);
+    --status-success-text: #15803d;
+    --status-warning-bg: rgba(217, 119, 6, 0.1);
+    --status-warning-text: #b45309;
+    --status-error-bg: rgba(220, 38, 38, 0.1);
+    --status-error-text: #b91c1c;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Typography scale */
+  .headline-lg {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 38px;
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 768px) {
+    .headline-lg {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 32px;
+      letter-spacing: -0.01em;
+    }
+  }
+
+  .headline-md {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 28px;
+  }
+
+  .body-lg {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+
+  .body-sm {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+
+  .label-md {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .button-text {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+  }
+
+  .section-gap {
+    margin-top: 40px;
+  }
+}
