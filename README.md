@@ -13,6 +13,20 @@ Abra `http://localhost:5173`. Faça login escolhendo o papel (Aluno, Colaborador
 
 Para simular o fluxo completo, abra **duas abas**: uma como **Aluno** e outra como **Colaborador**.
 
+## Deploy (Vercel)
+
+O projeto é uma SPA estática e faz deploy automático na Vercel a cada push na branch `main`. Pull Requests geram preview URLs independentes.
+
+**Como funciona o roteamento:** o `vercel.json` redireciona todas as rotas para `index.html`, garantindo que um refresh em `/colaborador` ou qualquer rota interna funcione sem 404.
+
+**Variáveis de ambiente:** configure no painel da Vercel em **Settings → Environment Variables**. Variáveis com prefixo `VITE_` ficam embutidas no bundle do cliente — não coloque segredos nelas.
+
+| Variável | Valor atual | Descrição |
+|---|---|---|
+| `VITE_USE_MOCK` | `true` | Usa dados em memória sem backend |
+
+> Quando o backend FastAPI estiver pronto, adicione `VITE_API_BASE_URL` e mude `VITE_USE_MOCK` para `false`.
+
 ## Camada de serviço — como trocar pelo backend
 
 Toda comunicação com dados passa por `src/services/`. A troca é feita em **um único arquivo**:
