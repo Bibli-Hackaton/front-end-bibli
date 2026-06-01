@@ -5,7 +5,12 @@
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
-// Chave do token no localStorage — exportada para o AuthService gravar/ler.
+// Chave do token no sessionStorage — exportada para o AuthService gravar/ler.
+// sessionStorage (e não localStorage) é proposital: a sessão de auth é por ABA,
+// igual ao ui.usuarioLogadoId. Assim o fluxo de demo com duas abas (Aluno numa,
+// Colaborador noutra) funciona — cada aba mantém o próprio token. Com localStorage
+// o segundo login sobrescreveria o token e as duas abas autenticariam como o mesmo
+// usuário (causando 403 "Acesso restrito para este papel").
 export const TOKEN_KEY = 'bibli.token'
 
 // Erro de API com o status HTTP, para os serviços tratarem casos como 404 → null.
@@ -31,7 +36,7 @@ async function request<T>(path: string, options: RequestOptions): Promise<T> {
   }
 
   if (options.auth) {
-    const token = localStorage.getItem(TOKEN_KEY)
+    const token = sessionStorage.getItem(TOKEN_KEY)
     if (token) headers['Authorization'] = `Bearer ${token}`
   }
 

@@ -19,14 +19,14 @@ function mapAuthUser(dto: AuthUserDTO): Usuario {
 
 export class AuthServiceHTTP implements IAuthService {
   constructor() {
-    // Restaura a sessão do localStorage no boot. Como este serviço é
+    // Restaura a sessão do sessionStorage no boot. Como este serviço é
     // instanciado no import de services/index.ts (antes do router renderizar),
     // o store já tem o usuário logado na primeira renderização — sem flash.
     this.restaurarSessao()
   }
 
   private restaurarSessao() {
-    const raw = localStorage.getItem(USER_KEY)
+    const raw = sessionStorage.getItem(USER_KEY)
     if (!raw) return
     try {
       const usuario = JSON.parse(raw) as Usuario
@@ -35,8 +35,8 @@ export class AuthServiceHTTP implements IAuthService {
       store.setUsuarioLogado(usuario.id)
     } catch {
       // JSON corrompido — limpa para evitar loop de erro.
-      localStorage.removeItem(USER_KEY)
-      localStorage.removeItem(TOKEN_KEY)
+      sessionStorage.removeItem(USER_KEY)
+      sessionStorage.removeItem(TOKEN_KEY)
     }
   }
 
@@ -48,8 +48,8 @@ export class AuthServiceHTTP implements IAuthService {
 
     const usuario = mapAuthUser(resposta.user)
 
-    localStorage.setItem(TOKEN_KEY, resposta.accessToken)
-    localStorage.setItem(USER_KEY, JSON.stringify(usuario))
+    sessionStorage.setItem(TOKEN_KEY, resposta.accessToken)
+    sessionStorage.setItem(USER_KEY, JSON.stringify(usuario))
 
     const store = useBibliotecaStore.getState()
     store.upsertUsuario(usuario)
@@ -59,13 +59,13 @@ export class AuthServiceHTTP implements IAuthService {
   }
 
   async logout(): Promise<void> {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
+    sessionStorage.removeItem(TOKEN_KEY)
+    sessionStorage.removeItem(USER_KEY)
     useBibliotecaStore.getState().setUsuarioLogado(null)
   }
 
   async getUsuarioAtual(): Promise<Usuario | null> {
-    const raw = localStorage.getItem(USER_KEY)
+    const raw = sessionStorage.getItem(USER_KEY)
     if (!raw) return null
     try {
       return JSON.parse(raw) as Usuario
